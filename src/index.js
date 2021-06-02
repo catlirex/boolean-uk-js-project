@@ -148,6 +148,17 @@ function renderWatchListBtn(symbol) {
   } else {
     watchListBtn.innerText = 'Remove from Watchlist';
   }
+
+  watchListBtn.addEventListener('submit', function () {
+    const stock = {
+      name: 'Twitter',
+      symbol: 'TWTR',
+      price: 57.26,
+    };
+    addStockToServer(stock).then(function (newStockFromServer) {
+      setState({ watchList: [...state.watchList, newStockFromServer] });
+    });
+  });
   header.append(watchListBtn);
 }
 
