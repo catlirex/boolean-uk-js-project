@@ -15,26 +15,27 @@ const getStocksFromServer = () => {
     return response.json();
   });
 };
-const deleteStocksFromServer = (stockId) => {
-  return fetch(`http://localhost:3000/stadiums/${stockId}`, {
+const deleteStockFromServer = (stockId) => {
+  return fetch(`http://localhost:3000/watchList/${stockId}`, {
     method: 'DELETE',
   }).then(function (response) {
     return response.json();
   });
 };
 
-const addStocksToServer = (stadium) => {
+const addStocksToServer = (stock) => {
   return fetch(`http://localhost:3000/watchList`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(stadium),
+    body: JSON.stringify(stock),
   }).then(function (response) {
     return response.json();
   });
 };
 
+const body = document.querySelector('body');
 const header = document.querySelector('.main-header');
 const newsContainer = document.querySelector('.related-news-container');
 
@@ -213,9 +214,8 @@ function renderAllNewsCard(data) {
 }
 
 /* LEFT SIDE STOCK WATCH LIST RENDER FUNCTIONS */
+const stockUlEl = document.querySelector('.stock-list');
 const renderWatchList = () => {
-  const stockUlEl = document.querySelector('.stock-list');
-
   for (const stock of state.watchList) {
     stockLiEl = renderStock(stock);
 
@@ -242,6 +242,15 @@ const renderStock = (stock) => {
     }
   }
 
+  stockLiEl.addEventListener('click', function () {
+    deleteStockFromServer(stock.id).then(function () {
+      const filteredStocks = state.watchList.filter(function (targetedStock) {
+        return targetedStock.id !== stock.id;
+      });
+      setState({ watchList: filteredStocks });
+    });
+  });
+
   stockLiEl.append(stockPrice, stockName);
 
   return stockLiEl;
@@ -249,8 +258,9 @@ const renderStock = (stock) => {
 
 // MAIN RENDER
 const render = () => {
+  stockUlEl.innerHTML = '';
   searchStock();
-  // renderNewsCard();
+  //   renderNewsCard();
   renderStock();
   renderWatchList();
 };

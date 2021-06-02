@@ -1,18 +1,6 @@
 {
   "watchList": [
     {
-      "id": 1,
-      "name": "Apple",
-      "symbol": "AAPL",
-      "price": 125.76
-    },
-    {
-      "id": 2,
-      "name": "Tesla",
-      "symbol": "TSLA",
-      "price": 614.67
-    },
-    {
       "id": 3,
       "name": "Amazon",
       "symbol": "AMZN",
