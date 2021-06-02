@@ -1,31 +1,5 @@
 let state = {
-  watchList: [
-    {
-      name: 'Apple',
-      symbol: 'AAPL',
-      price: 125.76,
-    },
-    {
-      name: 'Tesla',
-      symbol: 'TSLA',
-      price: 614.67,
-    },
-    {
-      name: 'Amazon',
-      symbol: 'AMZN',
-      price: 3213.26,
-    },
-    {
-      name: 'FaceBook',
-      symbol: 'FB',
-      price: 329.76,
-    },
-    {
-      name: 'Netflix',
-      symbol: 'NFLX',
-      price: 499.76,
-    },
-  ],
+  watchList: [],
 };
 
 // STATE FUNCTIONS
@@ -33,6 +7,13 @@ const setState = (stockToUpdate) => {
   state = { ...state, ...stockToUpdate };
 
   render();
+};
+
+// SERVER FUNCTIONS
+const getStocksFromServer = () => {
+  return fetch('http://localhost:3000/watchList').then(function (response) {
+    return response.json();
+  });
 };
 
 const header = document.querySelector('.main-header');
@@ -255,4 +236,13 @@ const render = () => {
   renderWatchList();
 };
 
-render();
+// render();
+
+const startApp = () => {
+  render();
+  getStocksFromServer().then(function (stocksFromServer) {
+    setState({ watchList: stocksFromServer });
+  });
+};
+
+startApp();
