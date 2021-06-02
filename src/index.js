@@ -271,7 +271,7 @@ const renderStock = (stock) => {
 // MAIN RENDER
 const render = () => {
   stockUlEl.innerHTML = '';
-  searchStock();
+  //   searchStock();
   //   renderNewsCard();
   renderStock();
   renderWatchList();
