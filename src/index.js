@@ -184,12 +184,9 @@ function addStockToWatchList() {}
 function delStockFromWatchList() {}
 
 function renderWatchList() {
-  // I want to
-
   const stockUlEl = document.querySelector('.stock-list');
 
   for (const stock of state.watchList) {
-    // console.log(stock);
     stockLiEl = renderStock(stock);
 
     stockUlEl.append(stockLiEl);
@@ -204,8 +201,6 @@ const renderStock = (stock) => {
   const stockName = document.createElement('span');
 
   for (const key in stock) {
-    // value = stock[key];
-    // console.log(value);
     if (key === 'symbol') {
       stockLiEl.innerText = stock[key];
     }
