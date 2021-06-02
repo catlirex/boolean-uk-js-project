@@ -8,12 +8,22 @@ let state = {
     {
       name: 'Tesla',
       symbol: 'TSLA',
-      price: 125.76,
+      price: 614.67,
     },
     {
       name: 'Amazon',
       symbol: 'AMZN',
-      price: 125.76,
+      price: 3213.26,
+    },
+    {
+      name: 'FaceBook',
+      symbol: 'FB',
+      price: 329.76,
+    },
+    {
+      name: 'Netflix',
+      symbol: 'NFLX',
+      price: 499.76,
     },
   ],
 };
@@ -216,6 +226,7 @@ const renderStock = (stock) => {
 
   return stockLiEl;
 };
+
 searchStock();
 renderNewsCard();
 renderStock();
