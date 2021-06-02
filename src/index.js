@@ -55,8 +55,9 @@ function searchStock(){
         })
 
         getSearchRelatedNews(searchInput.value)
-        .then(function(data){
-            console.log(data)
+        .then(function(newsData){
+            console.log(newsData)
+            renderAllNewsCard(newsData)
         })
     })
 }
@@ -116,38 +117,57 @@ function render(data){
 }
 
 // current hardCode data
-function renderNewsCard(){
+function renderNewsCard(newsData){
 let newsCard = document.createElement("a")
 newsCard.className = "news-card"
-newsCard.setAttribute("href", "https://www.investors.com/research/dow-jones-stocks/?src=A00220&yptr=yahoo")
+newsCard.setAttribute("href", newsData.link)
 newsCard.setAttribute("target", "_blank")
 newsContainer.append(newsCard)
 
 let publisher = document.createElement("span")
 publisher.className = "news-publisher"
-publisher.innerText = "Investor's Business Daily"
+publisher.innerText = newsData.publisher
 let publishDate = document.createElement("span")
 publishDate.className = "publish-date"
-publishDate.innerText = `- DATE`
+let dateFormatted = convertEpochTimeToBST(newsData.published_at)
+publishDate.innerText = dateFormatted
 let newsTitle = document.createElement("h2")
 newsTitle.className = "news-title"
-newsTitle.innerText = ` 5 Dow Jones Stocks To Buy And Watch In June 2021: Apple Rallies,
-Microsoft Slides`
-let newsImg = document.createElement("img")
-newsImg.className = "news-image"
-newsImg.setAttribute("src", "https://s.yimg.com/uu/api/res/1.2/YPgi6CH.KCQSBzwAKkiwYQ--~B/aD01NzI7dz0xMDEyO2FwcGlkPXl0YWNoeW9u/https://s.yimg.com/uu/api/res/1.2/gQ_HwzhORxRfxro9gtZnTw--~B/aD01NzI7dz0xMDEyO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/56901482f55f234b59b6643da5f2851a")
-newsImg.setAttribute("alt", `5 Dow Jones Stocks To Buy And Watch In June 2021: Apple Rallies, Microsoft Slides`)
-let newsSummary = document.createElement("p")
-newsSummary.className = "summary"
-newsSummary.innerText = `The Dow Jones Industrial Average remain near record highs at the end
-of April, as the current stock market rally continues. The best Dow
-Jones stocks to buy and watch in June 2021 are Apple, Boeing,
-Disney, Goldman Sachs and Microsoft.`
+newsTitle.innerText = newsData.title
+newsCard.append(publisher, publishDate, newsTitle)
 
-newsCard.append(publisher, publishDate, newsTitle, newsImg, newsSummary)
+if (newsData.main_image !== null){
+    let newsImg = document.createElement("img")
+    newsImg.className = "news-image"
+    newsImg.setAttribute("src", newsData.main_image.original_url)
+    newsImg.setAttribute("alt", newsData.title)
+    newsCard.append(newsImg)
+}else{
+    newsCard.style.height= "fit-content";
 }
 
-function renderAllNewsCard(){}
+let newsSummary = document.createElement("p")
+newsSummary.className = "summary"
+newsSummary.innerText = `${newsData.summary.substr(0,230)} ...`
+newsCard.append(newsSummary)
+}
+
+function convertEpochTimeToBST(epochValue){
+    const milliseconds = epochValue * 1000 
+    const dateObject = new Date(milliseconds)
+    const options = { month: 'numeric', day: 'numeric', hour: "numeric",minute: "numeric"};
+    const formatDate = dateObject.toLocaleString('en-GB', options) 
+    return formatDate
+}
+
+convertEpochTimeToBST(1622572053)
+
+function renderAllNewsCard(data){
+    newsContainer.innerHTML = ""
+    for (i = 0; i < 10; i++){
+        renderNewsCard(data.items.result[i])
+    }
+}
 
 function addStockToWatchList(){}
 
@@ -156,4 +176,3 @@ function delStockFromWatchList(){}
 function renderWatchList(){}
 
 searchStock()
-renderNewsCard()
