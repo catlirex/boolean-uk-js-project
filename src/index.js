@@ -1,5 +1,31 @@
 let state = {
-  watchList: [],
+  watchList: [
+    {
+      name: 'Apple',
+      symbol: 'AAPL',
+      price: 125.76,
+    },
+    {
+      name: 'Tesla',
+      symbol: 'TSLA',
+      price: 614.67,
+    },
+    {
+      name: 'Amazon',
+      symbol: 'AMZN',
+      price: 3213.26,
+    },
+    {
+      name: 'FaceBook',
+      symbol: 'FB',
+      price: 329.76,
+    },
+    {
+      name: 'Netflix',
+      symbol: 'NFLX',
+      price: 499.76,
+    },
+  ],
 };
 
 // STATE FUNCTIONS
@@ -124,10 +150,10 @@ function renderWatchListBtn(symbol) {
   header.append(watchListBtn);
 }
 
-function render(data) {
-  header.innerHTML = '';
-  renderHeader(data);
-}
+// function render(data) {
+//   header.innerHTML = '';
+//   renderHeader(data);
+// }
 
 // current hardCode data
 
@@ -186,11 +212,16 @@ function renderAllNewsCard(data) {
   }
 }
 
-for (const stock of state.watchList) {
-  stockLiEl = renderStock(stock);
+/* LEFT SIDE STOCK WATCH LIST RENDER FUNCTIONS */
+const renderWatchList = () => {
+  const stockUlEl = document.querySelector('.stock-list');
 
-  stockUlEl.append(stockLiEl);
-}
+  for (const stock of state.watchList) {
+    stockLiEl = renderStock(stock);
+
+    stockUlEl.append(stockLiEl);
+  }
+};
 
 const renderStock = (stock) => {
   let stockLiEl = document.createElement('li');
@@ -216,7 +247,12 @@ const renderStock = (stock) => {
   return stockLiEl;
 };
 
-searchStock();
-renderNewsCard();
-renderStock();
-renderWatchList();
+// MAIN RENDER
+const render = () => {
+  searchStock();
+  // renderNewsCard();
+  renderStock();
+  renderWatchList();
+};
+
+render();
