@@ -84,14 +84,11 @@ function searchStock() {
       // add watchlist button -> update state -> update listing
     });
 
-
-        getSearchRelatedNews(searchInput.value)
-        .then(function(newsData){
-            console.log(newsData)
-            renderAllNewsCard(newsData)
-        })
-    })
-
+    getSearchRelatedNews(searchInput.value).then(function (newsData) {
+      console.log(newsData);
+      renderAllNewsCard(newsData);
+    });
+  });
 }
 
 function renderHeader(data) {
@@ -152,64 +149,65 @@ function render(data) {
 
 // current hardCode data
 
-function renderNewsCard(newsData){
-let newsCard = document.createElement("a")
-newsCard.className = "news-card"
-newsCard.setAttribute("href", newsData.link)
-newsCard.setAttribute("target", "_blank")
-newsContainer.append(newsCard)
+function renderNewsCard(newsData) {
+  let newsCard = document.createElement('a');
+  newsCard.className = 'news-card';
+  newsCard.setAttribute('href', newsData.link);
+  newsCard.setAttribute('target', '_blank');
+  newsContainer.append(newsCard);
 
-let publisher = document.createElement("span")
-publisher.className = "news-publisher"
-publisher.innerText = newsData.publisher
-let publishDate = document.createElement("span")
-publishDate.className = "publish-date"
-let dateFormatted = convertEpochTimeToBST(newsData.published_at)
-publishDate.innerText = dateFormatted
-let newsTitle = document.createElement("h2")
-newsTitle.className = "news-title"
-newsTitle.innerText = newsData.title
-newsCard.append(publisher, publishDate, newsTitle)
+  let publisher = document.createElement('span');
+  publisher.className = 'news-publisher';
+  publisher.innerText = newsData.publisher;
+  let publishDate = document.createElement('span');
+  publishDate.className = 'publish-date';
+  let dateFormatted = convertEpochTimeToBST(newsData.published_at);
+  publishDate.innerText = dateFormatted;
+  let newsTitle = document.createElement('h2');
+  newsTitle.className = 'news-title';
+  newsTitle.innerText = newsData.title;
+  newsCard.append(publisher, publishDate, newsTitle);
 
-if (newsData.main_image !== null){
-    let newsImg = document.createElement("img")
-    newsImg.className = "news-image"
-    newsImg.setAttribute("src", newsData.main_image.original_url)
-    newsImg.setAttribute("alt", newsData.title)
-    newsCard.append(newsImg)
-}else{
-    newsCard.style.height= "fit-content";
-}
-
-let newsSummary = document.createElement("p")
-newsSummary.className = "summary"
-newsSummary.innerText = `${newsData.summary.substr(0,230)} ...`
-newsCard.append(newsSummary)
-}
-
-function convertEpochTimeToBST(epochValue){
-    const milliseconds = epochValue * 1000 
-    const dateObject = new Date(milliseconds)
-    const options = { month: 'numeric', day: 'numeric', hour: "numeric",minute: "numeric"};
-    const formatDate = dateObject.toLocaleString('en-GB', options) 
-    return formatDate
-}
-
-convertEpochTimeToBST(1622572053)
-
-function renderAllNewsCard(data){
-    newsContainer.innerHTML = ""
-    for (i = 0; i < 10; i++){
-        renderNewsCard(data.items.result[i])
-    }
-}
-
-
-  for (const stock of state.watchList) {
-    stockLiEl = renderStock(stock);
-
-    stockUlEl.append(stockLiEl);
+  if (newsData.main_image !== null) {
+    let newsImg = document.createElement('img');
+    newsImg.className = 'news-image';
+    newsImg.setAttribute('src', newsData.main_image.original_url);
+    newsImg.setAttribute('alt', newsData.title);
+    newsCard.append(newsImg);
+  } else {
+    newsCard.style.height = 'fit-content';
   }
+
+  let newsSummary = document.createElement('p');
+  newsSummary.className = 'summary';
+  newsSummary.innerText = `${newsData.summary.substr(0, 230)} ...`;
+  newsCard.append(newsSummary);
+}
+
+function convertEpochTimeToBST(epochValue) {
+  const milliseconds = epochValue * 1000;
+  const dateObject = new Date(milliseconds);
+  const options = {
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  };
+  const formatDate = dateObject.toLocaleString('en-GB', options);
+  return formatDate;
+}
+
+function renderAllNewsCard(data) {
+  newsContainer.innerHTML = '';
+  for (i = 0; i < 10; i++) {
+    renderNewsCard(data.items.result[i]);
+  }
+}
+
+for (const stock of state.watchList) {
+  stockLiEl = renderStock(stock);
+
+  stockUlEl.append(stockLiEl);
 }
 
 const renderStock = (stock) => {
@@ -235,7 +233,6 @@ const renderStock = (stock) => {
 
   return stockLiEl;
 };
-
 
 searchStock();
 renderNewsCard();
