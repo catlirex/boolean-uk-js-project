@@ -15,6 +15,25 @@ const getStocksFromServer = () => {
     return response.json();
   });
 };
+const deleteStocksFromServer = (stockId) => {
+  return fetch(`http://localhost:3000/stadiums/${stockId}`, {
+    method: 'DELETE',
+  }).then(function (response) {
+    return response.json();
+  });
+};
+
+const addStocksToServer = (stadium) => {
+  return fetch(`http://localhost:3000/watchList`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(stadium),
+  }).then(function (response) {
+    return response.json();
+  });
+};
 
 const header = document.querySelector('.main-header');
 const newsContainer = document.querySelector('.related-news-container');

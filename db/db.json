@@ -1,26 +1,31 @@
 {
   "watchList": [
     {
+      "id": 1,
       "name": "Apple",
       "symbol": "AAPL",
       "price": 125.76
     },
     {
+      "id": 2,
       "name": "Tesla",
       "symbol": "TSLA",
       "price": 614.67
     },
     {
+      "id": 3,
       "name": "Amazon",
       "symbol": "AMZN",
       "price": 3213.26
     },
     {
+      "id": 4,
       "name": "FaceBook",
       "symbol": "FB",
       "price": 329.76
     },
     {
+      "id": 5,
       "name": "Netflix",
       "symbol": "NFLX",
       "price": 499.76
