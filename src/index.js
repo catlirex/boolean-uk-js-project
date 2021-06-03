@@ -1,32 +1,52 @@
 let state = {
-  watchList: [
-    {
-      name: 'Apple',
-      symbol: 'AAPL',
-      price: 125.76,
-    },
-    {
-      name: 'Tesla',
-      symbol: 'TSLA',
-      price: 614.67,
-    },
-    {
-      name: 'Amazon',
-      symbol: 'AMZN',
-      price: 3213.26,
-    },
-    {
-      name: 'FaceBook',
-      symbol: 'FB',
-      price: 329.76,
-    },
-    {
-      name: 'Netflix',
-      symbol: 'NFLX',
-      price: 499.76,
-    },
-  ],
+  watchList: [],
 };
+
+// STATE FUNCTIONS
+const setState = (stockToUpdate) => {
+  state = { ...state, ...stockToUpdate };
+
+  render();
+};
+
+// SERVER FUNCTIONS
+const getStocksFromServer = () => {
+  return fetch('http://localhost:3000/watchList').then(function (response) {
+    return response.json();
+  });
+};
+const deleteStockFromServer = (stockId) => {
+  return fetch(`http://localhost:3000/watchList/${stockId}`, {
+    method: 'DELETE',
+  }).then(function (response) {
+    return response.json();
+  });
+};
+
+const addStockToServer = (stock) => {
+  return fetch(`http://localhost:3000/watchList`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(stock),
+  }).then(function (response) {
+    return response.json();
+  });
+};
+
+const addStock = document.querySelector('.add-stock');
+addStock.addEventListener('click', function () {
+  const stock = {
+    name: 'Twitter',
+    symbol: 'TWTR',
+    price: 57.26,
+  };
+  addStockToServer(stock).then(function (newStockFromServer) {
+    setState({ watchList: [...state.watchList, newStockFromServer] });
+  });
+});
+
 const header = document.querySelector('.main-header');
 const newsContainer = document.querySelector('.related-news-container');
 
@@ -139,13 +159,14 @@ function renderWatchListBtn(symbol) {
   } else {
     watchListBtn.innerText = 'Remove from Watchlist';
   }
+
   header.append(watchListBtn);
 }
 
-function render(data) {
-  header.innerHTML = '';
-  renderHeader(data);
-}
+// function render(data) {
+//   header.innerHTML = '';
+//   renderHeader(data);
+// }
 
 // current hardCode data
 
@@ -204,11 +225,15 @@ function renderAllNewsCard(data) {
   }
 }
 
-for (const stock of state.watchList) {
-  stockLiEl = renderStock(stock);
+/* LEFT SIDE STOCK WATCH LIST RENDER FUNCTIONS */
+const stockUlEl = document.querySelector('.stock-list');
+const renderWatchList = () => {
+  for (const stock of state.watchList) {
+    stockLiEl = renderStock(stock);
 
-  stockUlEl.append(stockLiEl);
-}
+    stockUlEl.append(stockLiEl);
+  }
+};
 
 const renderStock = (stock) => {
   let stockLiEl = document.createElement('li');
@@ -229,12 +254,36 @@ const renderStock = (stock) => {
     }
   }
 
+  stockLiEl.addEventListener('click', function () {
+    deleteStockFromServer(stock.id).then(function () {
+      const filteredStocks = state.watchList.filter(function (targetedStock) {
+        return targetedStock.id !== stock.id;
+      });
+      setState({ watchList: filteredStocks });
+    });
+  });
+
   stockLiEl.append(stockPrice, stockName);
 
   return stockLiEl;
 };
 
-searchStock();
-renderNewsCard();
-renderStock();
-renderWatchList();
+// MAIN RENDER
+const render = () => {
+  stockUlEl.innerHTML = '';
+  //   searchStock();
+  //   renderNewsCard();
+  renderStock();
+  renderWatchList();
+};
+
+// render();
+
+const startApp = () => {
+  render();
+  getStocksFromServer().then(function (stocksFromServer) {
+    setState({ watchList: stocksFromServer });
+  });
+};
+
+startApp();
