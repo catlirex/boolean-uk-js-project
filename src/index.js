@@ -1,12 +1,18 @@
 let state = {
   watchList: [],
+  selectedStock: null,
+  stockData:{},
+  newsData:[]
 };
 
 // STATE FUNCTIONS
 const setState = (stockToUpdate) => {
   state = { ...state, ...stockToUpdate };
-
+  header.innerHTML = ""
   render();
+    renderHeader();
+    renderAllNewsCard()
+    
 };
 
 // SERVER FUNCTIONS
@@ -35,17 +41,17 @@ const addStockToServer = (stock) => {
   });
 };
 
-const addStock = document.querySelector('.add-stock');
-addStock.addEventListener('click', function () {
-  const stock = {
-    name: 'Twitter',
-    symbol: 'TWTR',
-    price: 57.26,
-  };
-  addStockToServer(stock).then(function (newStockFromServer) {
-    setState({ watchList: [...state.watchList, newStockFromServer] });
-  });
-});
+// const addStock = document.querySelector('.add-stock');
+// addStock.addEventListener('click', function () {
+//   const stock = {
+//     name: 'Twitter',
+//     symbol: 'TWTR',
+//     price: 57.26,
+//   };
+//   addStockToServer(stock).then(function (newStockFromServer) {
+//     setState({ watchList: [...state.watchList, newStockFromServer] });
+//   });
+// });
 
 const header = document.querySelector('.main-header');
 const newsContainer = document.querySelector('.related-news-container');
@@ -93,11 +99,22 @@ function searchStock() {
   searchform.addEventListener('submit', function (event) {
     event.preventDefault();
 
-    console.log(searchInput.value);
-
     getStockSummary(searchInput.value).then(function (data) {
-      console.log(data);
-      render(data);
+
+        let usefulData = {
+            symbol: data.symbol,
+            shortName: data.price.shortName,
+            currentPrice: data.price.regularMarketPrice.raw,
+            currentChange: data.price.regularMarketChange.raw
+        }
+
+        setState({stockData: usefulData})
+      console.log("usefulData:", usefulData);
+      console.log("state:", state);
+
+
+    //   update to state
+      renderSearch();
       // name of stock/ symbol / price(regularMarketPrice)
       // see related news
 
@@ -105,8 +122,28 @@ function searchStock() {
     });
 
     getSearchRelatedNews(searchInput.value).then(function (newsData) {
-      console.log(newsData);
-      renderAllNewsCard(newsData);
+        console.log(newsData)
+        let formattedArray = []
+        for (let i = 0; i < 10; i++) {
+        let usefulNewsData = {
+            title: newsData.items.result[i].title,
+            url: newsData.items.result[i].link,
+            publisher: newsData.items.result[i].publisher,
+            publishedAt: newsData.items.result[i].published_at,
+            summary: newsData.items.result[i].summary
+        }
+
+        if (newsData.items.result[i].main_image !== null){
+            usefulNewsData.img =  newsData.items.result[i].main_image.original_url
+        }
+
+        formattedArray.push(usefulNewsData)
+        }
+
+        setState({newsData:[...formattedArray]})
+        console.log(state);
+    //   update to state
+      
     });
   });
 }
@@ -115,29 +152,29 @@ function renderHeader(data) {
   let stockNameDiv = document.createElement('div');
   stockNameDiv.className = 'stock-name';
   let symbolH1 = document.createElement('h1');
-  symbolH1.innerText = data.symbol;
+  symbolH1.innerText = state.stockData.symbol;
   let nameH2 = document.createElement('h2');
-  nameH2.innerText = data.price.shortName;
+  nameH2.innerText = state.stockData.shortName;
   stockNameDiv.append(symbolH1, nameH2);
 
   let priceContainer = document.createElement('div');
   priceContainer.className = 'price-container';
   let currentPrice = document.createElement('p');
   currentPrice.className = 'current-price';
-  currentPrice.innerText = data.price.regularMarketPrice.raw;
+  currentPrice.innerText = state.stockData.currentPrice;
 
   let priceDiff = document.createElement('p');
   priceDiff.className = 'price-difference';
-  if (data.price.regularMarketChange.raw > 0)
-    priceDiff.innerText = `+ ${data.price.regularMarketChange.raw.toFixed(2)}`;
-  if (data.price.regularMarketChange.raw < 0)
-    priceDiff.innerText = data.price.regularMarketChange.raw.toFixed(2);
+  if (state.stockData.currentChange > 0)
+    priceDiff.innerText = `+ ${state.stockData.currentChange.toFixed(2)}`;
+  if (state.stockData.currentChange < 0)
+    priceDiff.innerText = state.stockData.currentChange.toFixed(2);
 
-  changeInnerTextColor(priceDiff, data.price.regularMarketChange.raw);
+  changeInnerTextColor(priceDiff, state.stockData.currentChange);
 
   priceContainer.append(currentPrice, priceDiff);
   header.append(stockNameDiv, priceContainer);
-  renderWatchListBtn(data.symbol);
+  renderWatchListBtn(data);
 }
 
 function changeInnerTextColor(element, changeNumber) {
@@ -146,34 +183,63 @@ function changeInnerTextColor(element, changeNumber) {
   if (changeNumber === 0) element.style.color = 'gray';
 }
 
-function renderWatchListBtn(symbol) {
+function renderWatchListBtn(data) {
   let watchListBtn = document.createElement('button');
   watchListBtn.className = 'round-end watchlist-action';
 
-  let watchListCheck = state.watchList.findIndex(function (target) {
-    return target === symbol;
+  let watchListCheck = state.watchList.find(function (target) {
+    //   console.log("target.symbol:", target.symbol)
+    //   console.log("state.stockData.symbol", state.stockData.symbol)
+    return target.symbol === state.stockData.symbol;
   });
 
-  if (watchListCheck === -1) {
+  
+  if (watchListCheck === undefined) {
     watchListBtn.innerText = 'Add to Watchlist';
+    
   } else {
     watchListBtn.innerText = 'Remove from Watchlist';
+    state.selectedStock = watchListCheck.id
   }
+
+  watchListBtn.addEventListener('click', function () {
+    const stock = {
+      name: state.stockData.name,
+      symbol: state.stockData.symbol,
+      price: state.stockData.currentPrice,
+      currentChange: state.stockData.currentChange
+    };
+    if (watchListCheck === undefined){
+    addStockToServer(stock).then(function (newStockFromServer) {
+      setState({ watchList: [...state.watchList, newStockFromServer] });
+    //   render 
+    });
+    }else{
+
+        deleteStockFromServer(state.selectedStock).then(function () {
+            const filteredStocks = state.watchList.filter(function (targetedStock) {
+              return targetedStock.id !== state.selectedStock.id;
+            });
+            setState({ watchList: filteredStocks });
+          });
+    }
+  });
 
   header.append(watchListBtn);
 }
 
-// function render(data) {
-//   header.innerHTML = '';
-//   renderHeader(data);
-// }
+function renderSearch(data) {
+  header.innerHTML = '';
+  renderHeader(data);
+}
 
 // current hardCode data
 
 function renderNewsCard(newsData) {
+    console.log(newsData)
   let newsCard = document.createElement('a');
   newsCard.className = 'news-card';
-  newsCard.setAttribute('href', newsData.link);
+  newsCard.setAttribute('href', newsData.url);
   newsCard.setAttribute('target', '_blank');
   newsContainer.append(newsCard);
 
@@ -182,17 +248,17 @@ function renderNewsCard(newsData) {
   publisher.innerText = newsData.publisher;
   let publishDate = document.createElement('span');
   publishDate.className = 'publish-date';
-  let dateFormatted = convertEpochTimeToBST(newsData.published_at);
+  let dateFormatted = convertEpochTimeToBST(newsData.publishedAt);
   publishDate.innerText = dateFormatted;
   let newsTitle = document.createElement('h2');
   newsTitle.className = 'news-title';
   newsTitle.innerText = newsData.title;
   newsCard.append(publisher, publishDate, newsTitle);
 
-  if (newsData.main_image !== null) {
+  if (newsData.img !== undefined) {
     let newsImg = document.createElement('img');
     newsImg.className = 'news-image';
-    newsImg.setAttribute('src', newsData.main_image.original_url);
+    newsImg.setAttribute('src', newsData.img);
     newsImg.setAttribute('alt', newsData.title);
     newsCard.append(newsImg);
   } else {
@@ -218,10 +284,10 @@ function convertEpochTimeToBST(epochValue) {
   return formatDate;
 }
 
-function renderAllNewsCard(data) {
+function renderAllNewsCard() {
   newsContainer.innerHTML = '';
-  for (i = 0; i < 10; i++) {
-    renderNewsCard(data.items.result[i]);
+  for (let i = 0; i < 10; i++) {
+    renderNewsCard(state.newsData[i]);
   }
 }
 
@@ -238,6 +304,10 @@ const renderWatchList = () => {
 const renderStock = (stock) => {
   let stockLiEl = document.createElement('li');
   stockLiEl.className = 'stock-list-item';
+  stockLiEl.addEventListener("click", function(){
+      setState({selectedStock: stock.id})
+      console.log(state)
+  })
 
   const stockPrice = document.createElement('span');
   const stockName = document.createElement('span');
@@ -254,14 +324,14 @@ const renderStock = (stock) => {
     }
   }
 
-  stockLiEl.addEventListener('click', function () {
-    deleteStockFromServer(stock.id).then(function () {
-      const filteredStocks = state.watchList.filter(function (targetedStock) {
-        return targetedStock.id !== stock.id;
-      });
-      setState({ watchList: filteredStocks });
-    });
-  });
+//   stockLiEl.addEventListener('click', function () {
+//     deleteStockFromServer(stock.id).then(function () {
+//       const filteredStocks = state.watchList.filter(function (targetedStock) {
+//         return targetedStock.id !== stock.id;
+//       });
+//       setState({ watchList: filteredStocks });
+//     });
+//   });
 
   stockLiEl.append(stockPrice, stockName);
 
@@ -270,20 +340,25 @@ const renderStock = (stock) => {
 
 // MAIN RENDER
 const render = () => {
+
   stockUlEl.innerHTML = '';
-  //   searchStock();
-  //   renderNewsCard();
-  renderStock();
+    searchStock();
+    // renderHeader();
+    // renderNewsCard();
+//   renderStock();
   renderWatchList();
 };
 
 // render();
 
 const startApp = () => {
-  render();
-  getStocksFromServer().then(function (stocksFromServer) {
-    setState({ watchList: stocksFromServer });
+    getStocksFromServer().then(function (stocksFromServer) {
+    state.watchList = [...stocksFromServer];
+    render();
   });
+  
 };
 
 startApp();
+
+

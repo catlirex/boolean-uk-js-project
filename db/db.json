@@ -1,18 +1,6 @@
 {
   "watchList": [
     {
-      "id": 1,
-      "name": "Apple",
-      "symbol": "AAPL",
-      "price": 125.76
-    },
-    {
-      "id": 2,
-      "name": "Tesla",
-      "symbol": "TSLA",
-      "price": 614.67
-    },
-    {
       "id": 3,
       "name": "Amazon",
       "symbol": "AMZN",
@@ -35,6 +23,71 @@
       "symbol": "TWTR",
       "price": 57.26,
       "id": 6
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 7
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 8
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 9
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 10
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 11
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 12
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 13
+    },
+    {
+      "name": "Twitter",
+      "symbol": "TWTR",
+      "price": 57.26,
+      "id": 14
+    },
+    {
+      "symbol": "AAPL",
+      "price": 123.495,
+      "id": 17
+    },
+    {
+      "symbol": "AAPL",
+      "price": 123.48,
+      "currentChange": -1.5799942,
+      "id": 18
+    },
+    {
+      "symbol": "AAPL",
+      "price": 123.48,
+      "currentChange": -1.5799942,
+      "id": 19
     }
   ]
 }
