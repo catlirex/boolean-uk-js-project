@@ -129,6 +129,7 @@ main {
   text-align: right;
   background-color: lightgrey;
   color: rgb(24, 24, 24);
+  justify-self: right;
 }
 
 /* right header */
