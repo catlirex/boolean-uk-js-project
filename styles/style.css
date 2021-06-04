@@ -49,6 +49,7 @@ main {
 
 .search-bar {
   display: grid;
+
   grid-auto-flow: column;
   justify-content: start;
   place-items: center;
@@ -61,6 +62,29 @@ main {
   border: inherit;
   background-color: rgba(211, 211, 211, 0);
   width: 150px;
+
+  grid-template-columns: 1fr;
+  grid-template-rows: 0.5fr 0.5fr 4fr 0.5fr;
+  gap: 0px 0px;
+  grid-template-areas:
+    "."
+    "."
+    "stock-section"
+    ".";
+  grid-area: left-side;
+}
+/* Stock -section */
+.stock-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 0px 0px;
+  grid-template-areas:
+    ". . ."
+    ". . ."
+    ". . .";
+  grid-area: stock-section;
+
 }
 
 /* stock-list */
@@ -209,4 +233,26 @@ header h2 {
 .news-title {
   font-size: 1.1rem;
   padding: 5px 0px;
+}
+
+/* Chart */
+.chart-button-bar {
+  text-align: center;
+  margin: 10px;
+  display: none;
+}
+
+.chart-button-bar button {
+  background-color: white;
+  padding: 5px;
+  box-shadow: 2px 0px 5px 2px rgba(113, 113, 113, 0.5);
+  width: fit-content;
+  border-radius: 3px;
+  margin-left: 10px;
+  font-size: 0.8rem;
+}
+
+.chart-button-bar button:hover {
+  transition: 0.1s;
+  box-shadow: 2px 0px 5px 3px rgba(113, 113, 113, 0.8);
 }
