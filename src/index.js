@@ -1,9 +1,50 @@
+const plugin = {
+    id: 'custom_canvas_background_color',
+    beforeDraw: (chart) => {
+      const ctx = chart.canvas.getContext('2d');
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = 'whitesmoke';
+      ctx.fillRect(0, 0, chart.width, chart.height);
+      ctx.restore();
+    }
+  }
+
 let state = {
   watchList: [],
   selectedStock: null,
   stockData:{},
-  newsData:[]
+  newsData:[],
+  chartsData:{
+    dateConverted:[],
+    lineChartDisplayData: {},
+    lineChartConfig:{
+        type: 'line',
+        data: null,
+        options: {
+          title: {
+            display: true,
+            text: '1M',
+            color: "white"
+            },
+            responsive: false
+        },
+        plugins: [plugin]
+      },
+    barConvertedData:[],
+    barChartDisplayData:{},
+    barChartConfig: {
+        type: 'bar',
+        data: null,
+        options: {
+          responsive: false
+        },
+        plugins: [plugin]
+      }
+  }
 };
+
+
 
 // STATE FUNCTIONS
 const setState = (stockToUpdate) => {
@@ -62,7 +103,7 @@ function getStockSummary(stockSymbo) {
     {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '2cf42d03cdmshea8aa5ef2111c14p16bab0jsnf5b3354df1b4',
+        "x-rapidapi-key": "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
     }
@@ -79,7 +120,7 @@ function getSearchRelatedNews(stockSymbol) {
     {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '2cf42d03cdmshea8aa5ef2111c14p16bab0jsnf5b3354df1b4',
+        "x-rapidapi-key": "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
     }
@@ -145,6 +186,7 @@ function searchStock() {
     //   update to state
       
     });
+    displayChart()
   });
 }
 
@@ -350,6 +392,142 @@ const render = () => {
 };
 
 // render();
+
+// chartFunction
+
+function getChatData(symbol,interval,range ){
+    return fetch(`https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-chart?interval=${interval}&symbol=${symbol}&range=${range}&region=US`, {
+	"method": "GET",
+	"headers": {
+		"x-rapidapi-key": "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
+		"x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+	}
+})
+    .then((response) => response.json())
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
+function convertEpochTimeToEST(epochValue) {
+    const milliseconds = epochValue * 1000;
+    const dateObject = new Date(milliseconds);
+    const options = {
+      month: 'numeric',
+      day: 'numeric'
+    };
+    const formatDate = dateObject.toLocaleString('en-US', options);
+    state.chartsData.dateConverted.push(formatDate);
+  }
+
+function processChartData(symbol = "AAPL", interval = "1d", range = "1mo"){
+    getChatData(symbol = "AAPL",interval, range)
+    .then(function(chartData){
+        console.log(chartData)
+        state.chartsData.dateConverted = []
+        let timeLabel = chartData.chart.result[0].timestamp
+        timeLabel.map(convertEpochTimeToEST)
+        state.chartsData.lineChartDisplayData = {
+            labels: state.chartsData.dateConverted,
+            datasets: [{ 
+                label: "Daily Low",
+                data: chartData.chart.result[0].indicators.quote[0].low,
+                borderColor: "darkred"
+            },{
+                label: "Close Price",
+                data: chartData.chart.result[0].indicators.quote[0].close,
+                borderColor: "rgb(21, 220, 220)",
+                backgroundColor: "rgba(21, 220, 220, 0.3)"
+              
+            },{ 
+                label: "Daily High",
+                data: chartData.chart.result[0].indicators.quote[0].high,
+                borderColor: "green"
+            }]
+        }
+        state.chartsData.lineChartConfig.data = state.chartsData.lineChartDisplayData
+        let barRawData = chartData.chart.result[0].indicators.quote[0].volume
+        let minBarData = Math.min(...barRawData)
+        console.log(barRawData)
+        let barLabel = convertBarDataReturnLabel(minBarData, barRawData)
+
+        state.chartsData.barChartDisplayData = {
+            labels: state.chartsData.dateConverted,
+            datasets: [{
+                label: barLabel,
+                data: state.chartsData.barConvertedData,
+                backgroundColor: "grey"
+            }]
+        }
+        state.chartsData.barChartConfig.data = state.chartsData.barChartDisplayData
+    })
+    .then(function(){
+        renderChart()
+    })
+}
+
+function renderChart(){
+    let oneMonthChart = new Chart(
+        document.getElementById('line-chart'), state.chartsData.lineChartConfig
+    );    
+    let volumeChart = new Chart(
+        document.getElementById('bar-chart'), state.chartsData.barChartConfig
+    );
+}
+
+function convertBarDataReturnLabel(minBarData, barRawData){
+    console.log(minBarData)
+    if (minBarData >= 1.0e+9) {
+        state.chartsData.barConvertedData = barRawData.map(num =>(Math.abs(Number(num)) / 1.0e+9).toFixed(2))
+        return "Volume(billions)"
+    }
+    else if (minBarData >= 1.0e+6) {
+        state.chartsData.barConvertedData = barRawData.map(num =>(Math.abs(Number(num)) / 1.0e+6).toFixed(2))
+        return "Volume(millions)"
+    }
+    else if (minBarData >= 1.0e+3) {
+        state.chartsData.barConvertedData = barRawData.map(num =>(Math.abs(Number(num)) / 1.0e+3).toFixed(2))
+        return "Volume(thousands)"
+    }
+    else{
+        state.chartsData.barConvertedData = barRawData.toFixed(2)
+    }
+}
+
+function displayChart(){
+    let chartBtnBar = document.querySelector(".chart-button-bar")
+    chartBtnBar.style.display = "block"
+    processChartData(state.stockData.symbol)
+
+    let fiveDayChart = document.getElementById("5D")
+    fiveDayChart.addEventListener("click", function(){
+        processChartData(state.stockData.symbol, "1d", "5d")
+    }) 
+
+    let oneMonthChart = document.getElementById("1M")
+    oneMonthChart.addEventListener("click", function(){
+        processChartData(state.stockData.symbol, "1d", "1mo")
+    }) 
+
+    let threeMonthChart = document.getElementById("3M")
+    threeMonthChart.addEventListener("click", function(){
+        processChartData(state.stockData.symbol, "1d", "3mo")
+    }) 
+
+    let sixMonthChart = document.getElementById("6M")
+    sixMonthChart.addEventListener("click", function(){
+        processChartData(state.stockData.symbol, "1d", "6mo")
+    }) 
+
+    let oneYearChart = document.getElementById("1Y")
+    oneYearChart.addEventListener("click", function(){
+        processChartData(state.stockData.symbol, "1d", "1y")
+    }) 
+}
+
+
+
+
 
 const startApp = () => {
     getStocksFromServer().then(function (stocksFromServer) {

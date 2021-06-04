@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link rel="stylesheet" href="styles/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
     <script defer src="src/index.js"></script>
   </head>
   <body>
@@ -44,6 +45,21 @@
         </div>
         <button class="round-end watchlist-action">Add to Watchlist</button> -->
       </header>
+      <section class="chart">
+        <div class="chart-button-bar">
+          <button id="5D">5D</button>
+          <button id="1M">1M</button>
+          <button id="3M">3M</button>
+          <button id="6M">6M</button>
+          <button id="1Y">1Y</button>
+        </div>
+        <div>
+          <canvas id="line-chart" width="600" height="250"></canvas>
+        </div>
+        <div class="bar-chart-container">
+          <canvas id="bar-chart" width="600" height="100"></canvas>
+        </div>
+      </section>
       <section class="related-news-container">
         <!-- <a
           class="news-card"
