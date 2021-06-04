@@ -130,7 +130,7 @@ function getUpdatedPrice(watchListSymbol) {
     {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
+        'x-rapidapi-key': '216b955a3emsh1c9e90acee647bfp11ec98jsn4d8af370f408',
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
     }
@@ -147,7 +147,7 @@ function getStockSummary(stockSymbol) {
     {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
+        'x-rapidapi-key': '216b955a3emsh1c9e90acee647bfp11ec98jsn4d8af370f408',
 
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
@@ -165,7 +165,7 @@ function getSearchRelatedNews(stockSymbol) {
     {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
+        'x-rapidapi-key': '216b955a3emsh1c9e90acee647bfp11ec98jsn4d8af370f408',
 
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
@@ -466,7 +466,7 @@ function getChatData(symbol, interval, range) {
     {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
+        'x-rapidapi-key': '216b955a3emsh1c9e90acee647bfp11ec98jsn4d8af370f408',
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
     }

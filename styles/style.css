@@ -255,3 +255,8 @@ header h2 {
   transition: 0.1s;
   box-shadow: 2px 0px 5px 3px rgba(113, 113, 113, 0.8);
 }
+
+.chart-div {
+  display: grid;
+  place-items: center;
+}
