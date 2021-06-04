@@ -4,90 +4,36 @@
       "id": 3,
       "name": "Amazon",
       "symbol": "AMZN",
-      "price": 3213.26
-    },
-    {
-      "id": 4,
-      "name": "FaceBook",
-      "symbol": "FB",
-      "price": 329.76
+      "price": 3187.01,
+      "currentChange": -46.97998
     },
     {
       "id": 5,
       "name": "Netflix",
       "symbol": "NFLX",
-      "price": 499.76
+      "price": 489.43,
+      "currentChange": -9.809998
     },
     {
       "name": "Twitter",
       "symbol": "TWTR",
-      "price": 57.26,
-      "id": 6
+      "price": 57.01,
+      "id": 6,
+      "currentChange": -0.150002
     },
     {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 7
-    },
-    {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 8
-    },
-    {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 9
-    },
-    {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 10
-    },
-    {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 11
-    },
-    {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 12
-    },
-    {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 13
-    },
-    {
-      "name": "Twitter",
-      "symbol": "TWTR",
-      "price": 57.26,
-      "id": 14
-    },
-    {
+      "name": "Apple Inc.",
       "symbol": "AAPL",
-      "price": 123.495,
-      "id": 17
-    },
-    {
-      "symbol": "AAPL",
-      "price": 123.48,
-      "currentChange": -1.5799942,
-      "id": 18
-    },
-    {
-      "symbol": "AAPL",
-      "price": 123.48,
-      "currentChange": -1.5799942,
+      "price": 123.54,
+      "currentChange": -1.5199966,
       "id": 19
+    },
+    {
+      "name": "Facebook, Inc.",
+      "symbol": "FB",
+      "price": 326.04,
+      "currentChange": -3.1099854,
+      "id": 20
     }
   ]
 }

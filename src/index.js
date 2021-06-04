@@ -45,6 +45,9 @@ let state = {
 };
 
 
+const header = document.querySelector('.main-header');
+const newsContainer = document.querySelector('.related-news-container');
+
 
 // STATE FUNCTIONS
 const setState = (stockToUpdate) => {
@@ -82,20 +85,62 @@ const addStockToServer = (stock) => {
   });
 };
 
-// const addStock = document.querySelector('.add-stock');
-// addStock.addEventListener('click', function () {
-//   const stock = {
-//     name: 'Twitter',
-//     symbol: 'TWTR',
-//     price: 57.26,
-//   };
-//   addStockToServer(stock).then(function (newStockFromServer) {
-//     setState({ watchList: [...state.watchList, newStockFromServer] });
-//   });
-// });
+function updateWatchListPriceFromAPI(){
+    let watchListSymbol = []
+    for (stock of state.watchList){
+        watchListSymbol.push(stock.symbol)
+    }
+    console.log(watchListSymbol)
 
-const header = document.querySelector('.main-header');
-const newsContainer = document.querySelector('.related-news-container');
+    getUpdatedPrice(watchListSymbol)
+    .then(function(data){
+        console.log(data)
+        let updatedWatchList = []
+        for (let i = 0; i < data.quoteResponse.result.length; i++){
+            updatedStock = {...state.watchList[i]}
+            updatedStock.price = data.quoteResponse.result[i].regularMarketPrice
+            updatedStock.currentChange = data.quoteResponse.result[i].regularMarketChange
+
+            updatedWatchList.push(updatedStock)            
+        }
+
+        state.watchList = [...updatedWatchList]
+        for (stock of state.watchList){
+            patchStockPriceToServer(stock)
+        }
+    })
+}
+
+
+function patchStockPriceToServer(stock){
+    return fetch(`http://localhost:3000/watchList/${stock.id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(stock),
+  }).then(function (response) {
+    return response.json();
+  });
+}
+
+function getUpdatedPrice(watchListSymbol){
+    return fetch(
+        `https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=${watchListSymbol.join("%2C")}`,
+        {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-key': "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
+            'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
+          },
+        }
+      )
+      .then((response) => response.json())
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
 
 function getStockSummary(stockSymbo) {
   return fetch(
@@ -103,7 +148,10 @@ function getStockSummary(stockSymbo) {
     {
       method: 'GET',
       headers: {
-        "x-rapidapi-key": "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
+
+        'x-rapidapi-key': "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
+
+
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
     }
@@ -120,7 +168,9 @@ function getSearchRelatedNews(stockSymbol) {
     {
       method: 'GET',
       headers: {
-        "x-rapidapi-key": "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
+
+        'x-rapidapi-key': "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
+
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
     }
@@ -133,9 +183,8 @@ function getSearchRelatedNews(stockSymbol) {
 
 function searchStock() {
   let searchform = document.querySelector('.search-form');
-  let searchInput = document.querySelector('.search-bar');
-  // console.log(searchform)
-  // console.log(searchInput)
+  let searchInput = document.querySelector('.search-input');
+  
 
   searchform.addEventListener('submit', function (event) {
     event.preventDefault();
@@ -150,16 +199,8 @@ function searchStock() {
         }
 
         setState({stockData: usefulData})
-      console.log("usefulData:", usefulData);
-      console.log("state:", state);
+        renderSearch();
 
-
-    //   update to state
-      renderSearch();
-      // name of stock/ symbol / price(regularMarketPrice)
-      // see related news
-
-      // add watchlist button -> update state -> update listing
     });
 
     getSearchRelatedNews(searchInput.value).then(function (newsData) {
@@ -183,7 +224,6 @@ function searchStock() {
 
         setState({newsData:[...formattedArray]})
         console.log(state);
-    //   update to state
       
     });
     displayChart()
@@ -220,9 +260,9 @@ function renderHeader(data) {
 }
 
 function changeInnerTextColor(element, changeNumber) {
-  if (changeNumber > 0) element.style.color = 'green';
-  if (changeNumber < 0) element.style.color = 'red';
-  if (changeNumber === 0) element.style.color = 'gray';
+  if (changeNumber >= 0) element.style.color = 'rgb(235, 15, 42)';
+  if (changeNumber < 0) element.style.color = 'rgb(235, 15, 42)';
+  
 }
 
 function renderWatchListBtn(data) {
@@ -241,12 +281,13 @@ function renderWatchListBtn(data) {
     
   } else {
     watchListBtn.innerText = 'Remove from Watchlist';
+    watchListBtn.style.backgroundColor = "rgb(120, 163, 186)"
     state.selectedStock = watchListCheck.id
   }
 
   watchListBtn.addEventListener('click', function () {
     const stock = {
-      name: state.stockData.name,
+      name: state.stockData.shortName,
       symbol: state.stockData.symbol,
       price: state.stockData.currentPrice,
       currentChange: state.stockData.currentChange
@@ -260,8 +301,9 @@ function renderWatchListBtn(data) {
 
         deleteStockFromServer(state.selectedStock).then(function () {
             const filteredStocks = state.watchList.filter(function (targetedStock) {
-              return targetedStock.id !== state.selectedStock.id;
+              return targetedStock.id !== state.selectedStock;
             });
+            console.log(filteredStocks)
             setState({ watchList: filteredStocks });
           });
     }
@@ -275,10 +317,7 @@ function renderSearch(data) {
   renderHeader(data);
 }
 
-// current hardCode data
-
 function renderNewsCard(newsData) {
-    console.log(newsData)
   let newsCard = document.createElement('a');
   newsCard.className = 'news-card';
   newsCard.setAttribute('href', newsData.url);
@@ -352,7 +391,11 @@ const renderStock = (stock) => {
   })
 
   const stockPrice = document.createElement('span');
+  stockPrice.className = "stock-price"
   const stockName = document.createElement('span');
+  stockName.className = "stock-name"
+  const stockChange = document.createElement('span');
+  stockChange.className = "price-change"
 
   for (const key in stock) {
     if (key === 'symbol') {
@@ -364,18 +407,15 @@ const renderStock = (stock) => {
     if (key === 'name') {
       stockName.innerText = stock[key];
     }
+    if(key === "currentChange"){
+    stockChange.innerText = stock[key].toFixed(2);
+    if(Number(stock[key]) >= 0)stockChange.style.backgroundColor = "rgb(4, 176, 81)"
+    if(Number(stock[key]) < 0)stockChange.style.backgroundColor = "rgb(235, 15, 42)"
+    
+    }
   }
 
-//   stockLiEl.addEventListener('click', function () {
-//     deleteStockFromServer(stock.id).then(function () {
-//       const filteredStocks = state.watchList.filter(function (targetedStock) {
-//         return targetedStock.id !== stock.id;
-//       });
-//       setState({ watchList: filteredStocks });
-//     });
-//   });
-
-  stockLiEl.append(stockPrice, stockName);
+  stockLiEl.append(stockPrice, stockName,stockChange);
 
   return stockLiEl;
 };
@@ -385,11 +425,9 @@ const render = () => {
 
   stockUlEl.innerHTML = '';
     searchStock();
-    // renderHeader();
-    // renderNewsCard();
-//   renderStock();
   renderWatchList();
 };
+
 
 // render();
 
@@ -529,10 +567,12 @@ function displayChart(){
 
 
 
+
 const startApp = () => {
     getStocksFromServer().then(function (stocksFromServer) {
     state.watchList = [...stocksFromServer];
     render();
+    // updateWatchListPriceFromAPI()
   });
   
 };

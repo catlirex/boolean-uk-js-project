@@ -19,8 +19,6 @@ a {
 
 /* Page Basic Setting */
 body {
-  /* display: grid;
-  grid-template-columns: 300px 1fr; */
   display: grid;
   grid-template-columns: 1fr 2fr;
   grid-template-rows: 1fr;
@@ -30,9 +28,41 @@ body {
   height: 100vh;
 }
 
+main {
+  padding-left: 250px;
+}
+
 /* Left Side */
 .left-side {
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  width: 250px;
+  padding: 20px;
+  overflow: scroll;
+}
+/* search bar */
+.search-icon {
+  width: 20px;
+  fill: darkgrey;
+}
+
+.search-bar {
   display: grid;
+
+  grid-auto-flow: column;
+  justify-content: start;
+  place-items: center;
+  background-color: rgba(211, 211, 211, 0.571);
+  height: 30px;
+  padding: 0px 5px;
+}
+
+.search-input {
+  border: inherit;
+  background-color: rgba(211, 211, 211, 0);
+  width: 150px;
+
   grid-template-columns: 1fr;
   grid-template-rows: 0.5fr 0.5fr 4fr 0.5fr;
   gap: 0px 0px;
@@ -54,25 +84,59 @@ body {
     ". . ."
     ". . .";
   grid-area: stock-section;
+
 }
 
 /* stock-list */
+.stock-list {
+  display: grid;
+  grid-gap: 15px;
+  padding: 20px 0;
+}
 
 /* List item */
 .stock-list-item {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(1, 1fr);
+  grid-template-columns: repeat(2, auto);
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1rem;
+  border-bottom: 2px solid lightgrey;
+  padding-bottom: 5px;
+  /* grid-template-rows: repeat(1, 1fr);
   grid-column-gap: 50px;
   grid-row-gap: 0px;
-  margin-bottom: 15px;
+  margin-bottom: 15px; */
 }
+
+.stock-name {
+  width: fit-content;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.stock-price {
+  width: fit-content;
+  font-weight: 700;
+  font-size: 1rem;
+  justify-self: self-end;
+}
+
+.price-change {
+  width: 60px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  padding: 5px;
+  text-align: right;
+  background-color: lightgrey;
+  color: rgb(24, 24, 24);
+}
+
 /* right header */
 .main-header {
   display: grid;
   grid-auto-flow: column;
   padding: 20px;
-  /* background-color: lightgray; */
 }
 
 h1 {
