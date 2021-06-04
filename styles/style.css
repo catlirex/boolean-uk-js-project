@@ -62,29 +62,28 @@ main {
   border: inherit;
   background-color: rgba(211, 211, 211, 0);
   width: 150px;
-
-  grid-template-columns: 1fr;
-  grid-template-rows: 0.5fr 0.5fr 4fr 0.5fr;
-  gap: 0px 0px;
-  grid-template-areas:
-    "."
-    "."
-    "stock-section"
-    ".";
-  grid-area: left-side;
 }
-/* Stock -section */
-.stock-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto auto auto;
-  gap: 0px 0px;
-  grid-template-areas:
-    ". . ."
-    ". . ."
-    ". . .";
-  grid-area: stock-section;
 
+/* stock-list */
+.stock-list {
+  display: grid;
+  grid-gap: 15px;
+  padding: 20px 0;
+}
+
+/* Stock -section */
+.stock-list-item {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1rem;
+  border-bottom: 2px solid lightgrey;
+  padding-bottom: 5px;
+  /* grid-template-rows: repeat(1, 1fr);
+    grid-column-gap: 50px;
+    grid-row-gap: 0px;
+    margin-bottom: 15px; */
 }
 
 /* stock-list */
