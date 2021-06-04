@@ -1,62 +1,59 @@
 const plugin = {
-    id: 'custom_canvas_background_color',
-    beforeDraw: (chart) => {
-      const ctx = chart.canvas.getContext('2d');
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-over';
-      ctx.fillStyle = 'whitesmoke';
-      ctx.fillRect(0, 0, chart.width, chart.height);
-      ctx.restore();
-    }
-  }
+  id: 'custom_canvas_background_color',
+  beforeDraw: (chart) => {
+    const ctx = chart.canvas.getContext('2d');
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = 'whitesmoke';
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    ctx.restore();
+  },
+};
 
 let state = {
   watchList: [],
   selectedStock: null,
-  stockData:{},
-  newsData:[],
-  chartsData:{
-    dateConverted:[],
+  stockData: {},
+  newsData: [],
+  chartsData: {
+    dateConverted: [],
     lineChartDisplayData: {},
-    lineChartConfig:{
-        type: 'line',
-        data: null,
-        options: {
-          title: {
-            display: true,
-            text: '1M',
-            color: "white"
-            },
-            responsive: false
+    lineChartConfig: {
+      type: 'line',
+      data: null,
+      options: {
+        title: {
+          display: true,
+          text: '1M',
+          color: 'white',
         },
-        plugins: [plugin]
+        responsive: false,
       },
-    barConvertedData:[],
-    barChartDisplayData:{},
+      plugins: [plugin],
+    },
+    barConvertedData: [],
+    barChartDisplayData: {},
     barChartConfig: {
-        type: 'bar',
-        data: null,
-        options: {
-          responsive: false
-        },
-        plugins: [plugin]
-      }
-  }
+      type: 'bar',
+      data: null,
+      options: {
+        responsive: false,
+      },
+      plugins: [plugin],
+    },
+  },
 };
-
 
 const header = document.querySelector('.main-header');
 const newsContainer = document.querySelector('.related-news-container');
 
-
 // STATE FUNCTIONS
 const setState = (stockToUpdate) => {
   state = { ...state, ...stockToUpdate };
-  header.innerHTML = ""
+  header.innerHTML = '';
   render();
-    renderHeader();
-    renderAllNewsCard()
-    
+  renderHeader();
+  renderAllNewsCard();
 };
 
 // SERVER FUNCTIONS
@@ -85,35 +82,34 @@ const addStockToServer = (stock) => {
   });
 };
 
-function updateWatchListPriceFromAPI(){
-    let watchListSymbol = []
-    for (stock of state.watchList){
-        watchListSymbol.push(stock.symbol)
+function updateWatchListPriceFromAPI() {
+  let watchListSymbol = [];
+  for (stock of state.watchList) {
+    watchListSymbol.push(stock.symbol);
+  }
+  console.log(watchListSymbol);
+
+  getUpdatedPrice(watchListSymbol).then(function (data) {
+    console.log(data);
+    let updatedWatchList = [];
+    for (let i = 0; i < data.quoteResponse.result.length; i++) {
+      updatedStock = { ...state.watchList[i] };
+      updatedStock.price = data.quoteResponse.result[i].regularMarketPrice;
+      updatedStock.currentChange =
+        data.quoteResponse.result[i].regularMarketChange;
+
+      updatedWatchList.push(updatedStock);
     }
-    console.log(watchListSymbol)
 
-    getUpdatedPrice(watchListSymbol)
-    .then(function(data){
-        console.log(data)
-        let updatedWatchList = []
-        for (let i = 0; i < data.quoteResponse.result.length; i++){
-            updatedStock = {...state.watchList[i]}
-            updatedStock.price = data.quoteResponse.result[i].regularMarketPrice
-            updatedStock.currentChange = data.quoteResponse.result[i].regularMarketChange
-
-            updatedWatchList.push(updatedStock)            
-        }
-
-        state.watchList = [...updatedWatchList]
-        for (stock of state.watchList){
-            patchStockPriceToServer(stock)
-        }
-    })
+    state.watchList = [...updatedWatchList];
+    for (stock of state.watchList) {
+      patchStockPriceToServer(stock);
+    }
+  });
 }
 
-
-function patchStockPriceToServer(stock){
-    return fetch(`http://localhost:3000/watchList/${stock.id}`, {
+function patchStockPriceToServer(stock) {
+  return fetch(`http://localhost:3000/watchList/${stock.id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -124,23 +120,24 @@ function patchStockPriceToServer(stock){
   });
 }
 
-function getUpdatedPrice(watchListSymbol){
-    return fetch(
-        `https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=${watchListSymbol.join("%2C")}`,
-        {
-          method: 'GET',
-          headers: {
-            'x-rapidapi-key': "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
-            'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
-          },
-        }
-      )
-      .then((response) => response.json())
+function getUpdatedPrice(watchListSymbol) {
+  return fetch(
+    `https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=${watchListSymbol.join(
+      '%2C'
+    )}`,
+    {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
+        'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
+      },
+    }
+  )
+    .then((response) => response.json())
     .catch((err) => {
       console.error(err);
     });
 }
-
 
 function getStockSummary(stockSymbo) {
   return fetch(
@@ -148,9 +145,7 @@ function getStockSummary(stockSymbo) {
     {
       method: 'GET',
       headers: {
-
-        'x-rapidapi-key': "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
-
+        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
 
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
@@ -168,8 +163,7 @@ function getSearchRelatedNews(stockSymbol) {
     {
       method: 'GET',
       headers: {
-
-        'x-rapidapi-key': "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
+        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
 
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
       },
@@ -184,49 +178,44 @@ function getSearchRelatedNews(stockSymbol) {
 function searchStock() {
   let searchform = document.querySelector('.search-form');
   let searchInput = document.querySelector('.search-input');
-  
 
   searchform.addEventListener('submit', function (event) {
     event.preventDefault();
 
     getStockSummary(searchInput.value).then(function (data) {
+      let usefulData = {
+        symbol: data.symbol,
+        shortName: data.price.shortName,
+        currentPrice: data.price.regularMarketPrice.raw,
+        currentChange: data.price.regularMarketChange.raw,
+      };
 
-        let usefulData = {
-            symbol: data.symbol,
-            shortName: data.price.shortName,
-            currentPrice: data.price.regularMarketPrice.raw,
-            currentChange: data.price.regularMarketChange.raw
-        }
-
-        setState({stockData: usefulData})
-        renderSearch();
-
+      setState({ stockData: usefulData });
+      renderSearch();
     });
 
     getSearchRelatedNews(searchInput.value).then(function (newsData) {
-        console.log(newsData)
-        let formattedArray = []
-        for (let i = 0; i < 10; i++) {
+      let formattedArray = [];
+      for (let i = 0; i < 10; i++) {
         let usefulNewsData = {
-            title: newsData.items.result[i].title,
-            url: newsData.items.result[i].link,
-            publisher: newsData.items.result[i].publisher,
-            publishedAt: newsData.items.result[i].published_at,
-            summary: newsData.items.result[i].summary
+          title: newsData.items.result[i].title,
+          url: newsData.items.result[i].link,
+          publisher: newsData.items.result[i].publisher,
+          publishedAt: newsData.items.result[i].published_at,
+          summary: newsData.items.result[i].summary,
+        };
+
+        if (newsData.items.result[i].main_image !== null) {
+          usefulNewsData.img = newsData.items.result[i].main_image.original_url;
         }
 
-        if (newsData.items.result[i].main_image !== null){
-            usefulNewsData.img =  newsData.items.result[i].main_image.original_url
-        }
+        formattedArray.push(usefulNewsData);
+      }
 
-        formattedArray.push(usefulNewsData)
-        }
-
-        setState({newsData:[...formattedArray]})
-        console.log(state);
-      
+      setState({ newsData: [...formattedArray] });
     });
-    displayChart()
+
+    displayChart();
   });
 }
 
@@ -262,7 +251,6 @@ function renderHeader(data) {
 function changeInnerTextColor(element, changeNumber) {
   if (changeNumber >= 0) element.style.color = 'rgb(235, 15, 42)';
   if (changeNumber < 0) element.style.color = 'rgb(235, 15, 42)';
-  
 }
 
 function renderWatchListBtn(data) {
@@ -275,14 +263,12 @@ function renderWatchListBtn(data) {
     return target.symbol === state.stockData.symbol;
   });
 
-  
   if (watchListCheck === undefined) {
     watchListBtn.innerText = 'Add to Watchlist';
-    
   } else {
     watchListBtn.innerText = 'Remove from Watchlist';
-    watchListBtn.style.backgroundColor = "rgb(120, 163, 186)"
-    state.selectedStock = watchListCheck.id
+    watchListBtn.style.backgroundColor = 'rgb(120, 163, 186)';
+    state.selectedStock = watchListCheck.id;
   }
 
   watchListBtn.addEventListener('click', function () {
@@ -290,22 +276,21 @@ function renderWatchListBtn(data) {
       name: state.stockData.shortName,
       symbol: state.stockData.symbol,
       price: state.stockData.currentPrice,
-      currentChange: state.stockData.currentChange
+      currentChange: state.stockData.currentChange,
     };
-    if (watchListCheck === undefined){
-    addStockToServer(stock).then(function (newStockFromServer) {
-      setState({ watchList: [...state.watchList, newStockFromServer] });
-    //   render 
-    });
-    }else{
-
-        deleteStockFromServer(state.selectedStock).then(function () {
-            const filteredStocks = state.watchList.filter(function (targetedStock) {
-              return targetedStock.id !== state.selectedStock;
-            });
-            console.log(filteredStocks)
-            setState({ watchList: filteredStocks });
-          });
+    if (watchListCheck === undefined) {
+      addStockToServer(stock).then(function (newStockFromServer) {
+        setState({ watchList: [...state.watchList, newStockFromServer] });
+        //   render
+      });
+    } else {
+      deleteStockFromServer(state.selectedStock).then(function () {
+        const filteredStocks = state.watchList.filter(function (targetedStock) {
+          return targetedStock.id !== state.selectedStock;
+        });
+        console.log(filteredStocks);
+        setState({ watchList: filteredStocks });
+      });
     }
   });
 
@@ -385,17 +370,52 @@ const renderWatchList = () => {
 const renderStock = (stock) => {
   let stockLiEl = document.createElement('li');
   stockLiEl.className = 'stock-list-item';
-  stockLiEl.addEventListener("click", function(){
-      setState({selectedStock: stock.id})
-      console.log(state)
-  })
+  stockLiEl.addEventListener('click', function () {
+    // setState({ selectedStock: stock.id });
+    state.selectedStock = stock.id;
+    getStockSummary(stock.symbol).then(function (data) {
+      let usefulData = {
+        symbol: data.symbol,
+        shortName: data.price.shortName,
+        currentPrice: data.price.regularMarketPrice.raw,
+        currentChange: data.price.regularMarketChange.raw,
+      };
+
+      setState({ stockData: usefulData });
+      renderSearch();
+    });
+
+    getSearchRelatedNews(stock.symbol).then(function (newsData) {
+      console.log(newsData);
+      let formattedArray = [];
+      for (let i = 0; i < 10; i++) {
+        let usefulNewsData = {
+          title: newsData.items.result[i].title,
+          url: newsData.items.result[i].link,
+          publisher: newsData.items.result[i].publisher,
+          publishedAt: newsData.items.result[i].published_at,
+          summary: newsData.items.result[i].summary,
+        };
+
+        if (newsData.items.result[i].main_image !== null) {
+          usefulNewsData.img = newsData.items.result[i].main_image.original_url;
+        }
+
+        formattedArray.push(usefulNewsData);
+      }
+
+      setState({ newsData: [...formattedArray] });
+      console.log(state);
+    });
+    displayChart();
+  });
 
   const stockPrice = document.createElement('span');
-  stockPrice.className = "stock-price"
+  stockPrice.className = 'stock-price';
   const stockName = document.createElement('span');
-  stockName.className = "stock-name"
+  stockName.className = 'stock-name';
   const stockChange = document.createElement('span');
-  stockChange.className = "price-change"
+  stockChange.className = 'price-change';
 
   for (const key in stock) {
     if (key === 'symbol') {
@@ -407,40 +427,42 @@ const renderStock = (stock) => {
     if (key === 'name') {
       stockName.innerText = stock[key];
     }
-    if(key === "currentChange"){
-    stockChange.innerText = stock[key].toFixed(2);
-    if(Number(stock[key]) >= 0)stockChange.style.backgroundColor = "rgb(4, 176, 81)"
-    if(Number(stock[key]) < 0)stockChange.style.backgroundColor = "rgb(235, 15, 42)"
-    
+    if (key === 'currentChange') {
+      stockChange.innerText = stock[key].toFixed(2);
+      if (Number(stock[key]) >= 0)
+        stockChange.style.backgroundColor = 'rgb(4, 176, 81)';
+      if (Number(stock[key]) < 0)
+        stockChange.style.backgroundColor = 'rgb(235, 15, 42)';
     }
   }
 
-  stockLiEl.append(stockPrice, stockName,stockChange);
+  stockLiEl.append(stockPrice, stockName, stockChange);
 
   return stockLiEl;
 };
 
 // MAIN RENDER
 const render = () => {
-
   stockUlEl.innerHTML = '';
-    searchStock();
+
   renderWatchList();
 };
-
 
 // render();
 
 // chartFunction
 
-function getChatData(symbol,interval,range ){
-    return fetch(`https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-chart?interval=${interval}&symbol=${symbol}&range=${range}&region=US`, {
-	"method": "GET",
-	"headers": {
-		"x-rapidapi-key": "2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5",
-		"x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
-	}
-})
+function getChatData(symbol, interval, range) {
+  return fetch(
+    `https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-chart?interval=${interval}&symbol=${symbol}&range=${range}&region=US`,
+    {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': '2b6a39b94fmshd29c3c7e4970fc3p1258b3jsnc8c20a1a48f5',
+        'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com',
+      },
+    }
+  )
     .then((response) => response.json())
     .catch((err) => {
       console.error(err);
@@ -448,135 +470,143 @@ function getChatData(symbol,interval,range ){
 }
 
 function convertEpochTimeToEST(epochValue) {
-    const milliseconds = epochValue * 1000;
-    const dateObject = new Date(milliseconds);
-    const options = {
-      month: 'numeric',
-      day: 'numeric'
-    };
-    const formatDate = dateObject.toLocaleString('en-US', options);
-    state.chartsData.dateConverted.push(formatDate);
-  }
-
-function processChartData(symbol = "AAPL", interval = "1d", range = "1mo"){
-    getChatData(symbol = "AAPL",interval, range)
-    .then(function(chartData){
-        console.log(chartData)
-        state.chartsData.dateConverted = []
-        let timeLabel = chartData.chart.result[0].timestamp
-        timeLabel.map(convertEpochTimeToEST)
-        state.chartsData.lineChartDisplayData = {
-            labels: state.chartsData.dateConverted,
-            datasets: [{ 
-                label: "Daily Low",
-                data: chartData.chart.result[0].indicators.quote[0].low,
-                borderColor: "darkred"
-            },{
-                label: "Close Price",
-                data: chartData.chart.result[0].indicators.quote[0].close,
-                borderColor: "rgb(21, 220, 220)",
-                backgroundColor: "rgba(21, 220, 220, 0.3)"
-              
-            },{ 
-                label: "Daily High",
-                data: chartData.chart.result[0].indicators.quote[0].high,
-                borderColor: "green"
-            }]
-        }
-        state.chartsData.lineChartConfig.data = state.chartsData.lineChartDisplayData
-        let barRawData = chartData.chart.result[0].indicators.quote[0].volume
-        let minBarData = Math.min(...barRawData)
-        console.log(barRawData)
-        let barLabel = convertBarDataReturnLabel(minBarData, barRawData)
-
-        state.chartsData.barChartDisplayData = {
-            labels: state.chartsData.dateConverted,
-            datasets: [{
-                label: barLabel,
-                data: state.chartsData.barConvertedData,
-                backgroundColor: "grey"
-            }]
-        }
-        state.chartsData.barChartConfig.data = state.chartsData.barChartDisplayData
-    })
-    .then(function(){
-        renderChart()
-    })
+  const milliseconds = epochValue * 1000;
+  const dateObject = new Date(milliseconds);
+  const options = {
+    month: 'numeric',
+    day: 'numeric',
+  };
+  const formatDate = dateObject.toLocaleString('en-US', options);
+  state.chartsData.dateConverted.push(formatDate);
 }
 
-function renderChart(){
-    let oneMonthChart = new Chart(
-        document.getElementById('line-chart'), state.chartsData.lineChartConfig
-    );    
-    let volumeChart = new Chart(
-        document.getElementById('bar-chart'), state.chartsData.barChartConfig
+function processChartData(symbol = 'AAPL', interval = '1d', range = '1mo') {
+  getChatData((symbol = 'AAPL'), interval, range)
+    .then(function (chartData) {
+      // console.log(chartData);
+      state.chartsData.dateConverted = [];
+
+      let timeLabel = chartData.chart.result[0].timestamp;
+      timeLabel.map(convertEpochTimeToEST);
+      state.chartsData.lineChartDisplayData = {
+        labels: state.chartsData.dateConverted,
+        datasets: [
+          {
+            label: 'Daily Low',
+            data: chartData.chart.result[0].indicators.quote[0].low,
+            borderColor: 'darkred',
+          },
+          {
+            label: 'Close Price',
+            data: chartData.chart.result[0].indicators.quote[0].close,
+            borderColor: 'rgb(21, 220, 220)',
+            backgroundColor: 'rgba(21, 220, 220, 0.3)',
+          },
+          {
+            label: 'Daily High',
+            data: chartData.chart.result[0].indicators.quote[0].high,
+            borderColor: 'green',
+          },
+        ],
+      };
+      state.chartsData.lineChartConfig.data =
+        state.chartsData.lineChartDisplayData;
+      let barRawData = chartData.chart.result[0].indicators.quote[0].volume;
+      let minBarData = Math.min(...barRawData);
+      console.log(barRawData);
+      let barLabel = convertBarDataReturnLabel(minBarData, barRawData);
+
+      state.chartsData.barChartDisplayData = {
+        labels: state.chartsData.dateConverted,
+        datasets: [
+          {
+            label: barLabel,
+            data: state.chartsData.barConvertedData,
+            backgroundColor: 'grey',
+          },
+        ],
+      };
+      state.chartsData.barChartConfig.data =
+        state.chartsData.barChartDisplayData;
+    })
+    .then(function () {
+      renderChart();
+    });
+}
+
+function renderChart() {
+  let oneMonthChart = new Chart(
+    document.getElementById('line-chart'),
+    state.chartsData.lineChartConfig
+  );
+  let volumeChart = new Chart(
+    document.getElementById('bar-chart'),
+    state.chartsData.barChartConfig
+  );
+}
+
+function convertBarDataReturnLabel(minBarData, barRawData) {
+  if (minBarData >= 1.0e9) {
+    state.chartsData.barConvertedData = barRawData.map((num) =>
+      (Math.abs(Number(num)) / 1.0e9).toFixed(2)
     );
+    return 'Volume(billions)';
+  } else if (minBarData >= 1.0e6) {
+    state.chartsData.barConvertedData = barRawData.map((num) =>
+      (Math.abs(Number(num)) / 1.0e6).toFixed(2)
+    );
+    return 'Volume(millions)';
+  } else if (minBarData >= 1.0e3) {
+    state.chartsData.barConvertedData = barRawData.map((num) =>
+      (Math.abs(Number(num)) / 1.0e3).toFixed(2)
+    );
+    return 'Volume(thousands)';
+  } else {
+    state.chartsData.barConvertedData = barRawData.toFixed(2);
+  }
 }
 
-function convertBarDataReturnLabel(minBarData, barRawData){
-    console.log(minBarData)
-    if (minBarData >= 1.0e+9) {
-        state.chartsData.barConvertedData = barRawData.map(num =>(Math.abs(Number(num)) / 1.0e+9).toFixed(2))
-        return "Volume(billions)"
-    }
-    else if (minBarData >= 1.0e+6) {
-        state.chartsData.barConvertedData = barRawData.map(num =>(Math.abs(Number(num)) / 1.0e+6).toFixed(2))
-        return "Volume(millions)"
-    }
-    else if (minBarData >= 1.0e+3) {
-        state.chartsData.barConvertedData = barRawData.map(num =>(Math.abs(Number(num)) / 1.0e+3).toFixed(2))
-        return "Volume(thousands)"
-    }
-    else{
-        state.chartsData.barConvertedData = barRawData.toFixed(2)
-    }
+function displayChart() {
+  let chartBtnBar = document.querySelector('.chart-button-bar');
+  chartBtnBar.style.display = 'block';
+  processChartData(state.stockData.symbol);
 }
 
-function displayChart(){
-    let chartBtnBar = document.querySelector(".chart-button-bar")
-    chartBtnBar.style.display = "block"
-    processChartData(state.stockData.symbol)
+function displayChartEvents() {
+  let fiveDayChart = document.getElementById('5D');
+  fiveDayChart.addEventListener('click', function () {
+    processChartData(state.stockData.symbol, '1d', '5d');
+  });
 
-    let fiveDayChart = document.getElementById("5D")
-    fiveDayChart.addEventListener("click", function(){
-        processChartData(state.stockData.symbol, "1d", "5d")
-    }) 
+  let oneMonthChart = document.getElementById('1M');
+  oneMonthChart.addEventListener('click', function () {
+    processChartData(state.stockData.symbol, '1d', '1mo');
+  });
 
-    let oneMonthChart = document.getElementById("1M")
-    oneMonthChart.addEventListener("click", function(){
-        processChartData(state.stockData.symbol, "1d", "1mo")
-    }) 
+  let threeMonthChart = document.getElementById('3M');
+  threeMonthChart.addEventListener('click', function () {
+    processChartData(state.stockData.symbol, '1d', '3mo');
+  });
 
-    let threeMonthChart = document.getElementById("3M")
-    threeMonthChart.addEventListener("click", function(){
-        processChartData(state.stockData.symbol, "1d", "3mo")
-    }) 
+  let sixMonthChart = document.getElementById('6M');
+  sixMonthChart.addEventListener('click', function () {
+    processChartData(state.stockData.symbol, '1d', '6mo');
+  });
 
-    let sixMonthChart = document.getElementById("6M")
-    sixMonthChart.addEventListener("click", function(){
-        processChartData(state.stockData.symbol, "1d", "6mo")
-    }) 
-
-    let oneYearChart = document.getElementById("1Y")
-    oneYearChart.addEventListener("click", function(){
-        processChartData(state.stockData.symbol, "1d", "1y")
-    }) 
+  let oneYearChart = document.getElementById('1Y');
+  oneYearChart.addEventListener('click', function () {
+    processChartData(state.stockData.symbol, '1d', '1y');
+  });
 }
-
-
-
-
-
 
 const startApp = () => {
-    getStocksFromServer().then(function (stocksFromServer) {
+  getStocksFromServer().then(function (stocksFromServer) {
     state.watchList = [...stocksFromServer];
     render();
-    // updateWatchListPriceFromAPI()
+    displayChartEvents();
+    searchStock();
+    updateWatchListPriceFromAPI();
   });
-  
 };
 
 startApp();
-
-

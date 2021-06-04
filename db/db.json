@@ -19,7 +19,7 @@
       "symbol": "TWTR",
       "price": 57.01,
       "id": 6,
-      "currentChange": -0.150002
+      "currentChange": -0.15000153
     },
     {
       "name": "Apple Inc.",
@@ -34,6 +34,27 @@
       "price": 326.04,
       "currentChange": -3.1099854,
       "id": 20
+    },
+    {
+      "name": "BP p.l.c.",
+      "symbol": "BP",
+      "price": 27.76,
+      "currentChange": 0.13000107,
+      "id": 21
+    },
+    {
+      "name": "Johnson & Johnson",
+      "symbol": "JNJ",
+      "price": 166.04,
+      "currentChange": -0.16000366,
+      "id": 22
+    },
+    {
+      "name": "Coca-Cola Company (The)",
+      "symbol": "KO",
+      "price": 55.64,
+      "currentChange": 0.13999939,
+      "id": 23
     }
   ]
 }
