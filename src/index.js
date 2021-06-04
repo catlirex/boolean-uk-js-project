@@ -13,7 +13,8 @@ const plugin = {
 let state = {
   watchList: [],
   selectedStock: null,
-  stockData: {},
+  stockData: null,
+  previousStockData: null,
   newsData: [],
   chartsData: {
     dateConverted: [],
@@ -44,16 +45,17 @@ let state = {
   },
 };
 
+
+
 const header = document.querySelector('.main-header');
 const newsContainer = document.querySelector('.related-news-container');
 
 // STATE FUNCTIONS
 const setState = (stockToUpdate) => {
   state = { ...state, ...stockToUpdate };
-  header.innerHTML = '';
+  
   render();
-  renderHeader();
-  renderAllNewsCard();
+  
 };
 
 // SERVER FUNCTIONS
@@ -139,9 +141,9 @@ function getUpdatedPrice(watchListSymbol) {
     });
 }
 
-function getStockSummary(stockSymbo) {
+function getStockSummary(stockSymbol) {
   return fetch(
-    `https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary?symbol=${stockSymbo}&region=US`,
+    `https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary?symbol=${stockSymbol}&region=US`,
     {
       method: 'GET',
       headers: {
@@ -191,7 +193,7 @@ function searchStock() {
       };
 
       setState({ stockData: usefulData });
-      renderSearch();
+      
     });
 
     getSearchRelatedNews(searchInput.value).then(function (newsData) {
@@ -215,11 +217,13 @@ function searchStock() {
       setState({ newsData: [...formattedArray] });
     });
 
-    displayChart();
+    
   });
 }
 
-function renderHeader(data) {
+function renderHeader() {
+  if (state.stockData === null) return
+  header.innerHTML = '';
   let stockNameDiv = document.createElement('div');
   stockNameDiv.className = 'stock-name';
   let symbolH1 = document.createElement('h1');
@@ -245,7 +249,7 @@ function renderHeader(data) {
 
   priceContainer.append(currentPrice, priceDiff);
   header.append(stockNameDiv, priceContainer);
-  renderWatchListBtn(data);
+  renderWatchListBtn();
 }
 
 function changeInnerTextColor(element, changeNumber) {
@@ -253,7 +257,7 @@ function changeInnerTextColor(element, changeNumber) {
   if (changeNumber < 0) element.style.color = 'rgb(235, 15, 42)';
 }
 
-function renderWatchListBtn(data) {
+function renderWatchListBtn() {
   let watchListBtn = document.createElement('button');
   watchListBtn.className = 'round-end watchlist-action';
 
@@ -297,12 +301,13 @@ function renderWatchListBtn(data) {
   header.append(watchListBtn);
 }
 
-function renderSearch(data) {
-  header.innerHTML = '';
-  renderHeader(data);
-}
+// function renderSearch(data) {
+//   header.innerHTML = '';
+//   renderHeader(data);
+// }
 
 function renderNewsCard(newsData) {
+  
   let newsCard = document.createElement('a');
   newsCard.className = 'news-card';
   newsCard.setAttribute('href', newsData.url);
@@ -352,14 +357,16 @@ function convertEpochTimeToBST(epochValue) {
 
 function renderAllNewsCard() {
   newsContainer.innerHTML = '';
-  for (let i = 0; i < 10; i++) {
-    renderNewsCard(state.newsData[i]);
+  let tenNews = state.newsData.slice(0, 10)
+  for (const news of tenNews) {
+    renderNewsCard(news);
   }
 }
 
 /* LEFT SIDE STOCK WATCH LIST RENDER FUNCTIONS */
 const stockUlEl = document.querySelector('.stock-list');
 const renderWatchList = () => {
+  stockUlEl.innerHTML = '';
   for (const stock of state.watchList) {
     stockLiEl = renderStock(stock);
 
@@ -382,7 +389,7 @@ const renderStock = (stock) => {
       };
 
       setState({ stockData: usefulData });
-      renderSearch();
+      // renderSearch();
     });
 
     getSearchRelatedNews(stock.symbol).then(function (newsData) {
@@ -443,8 +450,9 @@ const renderStock = (stock) => {
 
 // MAIN RENDER
 const render = () => {
-  stockUlEl.innerHTML = '';
-
+  displayChart();
+  renderHeader();
+  renderAllNewsCard();
   renderWatchList();
 };
 
@@ -480,7 +488,7 @@ function convertEpochTimeToEST(epochValue) {
   state.chartsData.dateConverted.push(formatDate);
 }
 
-function processChartData(symbol = 'AAPL', interval = '1d', range = '1mo') {
+function processChartData(symbol, interval = '1d', range = '1mo') {
   getChatData((symbol = 'AAPL'), interval, range)
     .then(function (chartData) {
       // console.log(chartData);
@@ -567,7 +575,11 @@ function convertBarDataReturnLabel(minBarData, barRawData) {
 }
 
 function displayChart() {
-  let chartBtnBar = document.querySelector('.chart-button-bar');
+  if (state.stockData === null) return
+  if (state.previousStockData && state.previousStockData.symbol === state.stockData.symbol) return
+  state.previousStockData = state.stockData
+
+  let chartBtnBar = document.querySelector(".chart-button-bar")
   chartBtnBar.style.display = 'block';
   processChartData(state.stockData.symbol);
 }
