@@ -456,9 +456,7 @@ const render = () => {
   renderWatchList();
 };
 
-// render();
 
-// chartFunction
 
 function getChatData(symbol, interval, range) {
   return fetch(
