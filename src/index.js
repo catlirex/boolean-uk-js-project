@@ -45,17 +45,14 @@ let state = {
   },
 };
 
-
-
 const header = document.querySelector('.main-header');
 const newsContainer = document.querySelector('.related-news-container');
 
 // STATE FUNCTIONS
 const setState = (stockToUpdate) => {
   state = { ...state, ...stockToUpdate };
-  
+
   render();
-  
 };
 
 // SERVER FUNCTIONS
@@ -193,7 +190,6 @@ function searchStock() {
       };
 
       setState({ stockData: usefulData });
-      
     });
 
     getSearchRelatedNews(searchInput.value).then(function (newsData) {
@@ -216,13 +212,11 @@ function searchStock() {
 
       setState({ newsData: [...formattedArray] });
     });
-
-    
   });
 }
 
 function renderHeader() {
-  if (state.stockData === null) return
+  if (state.stockData === null) return;
   header.innerHTML = '';
   let stockNameDiv = document.createElement('div');
   stockNameDiv.className = 'stock-name';
@@ -307,7 +301,6 @@ function renderWatchListBtn() {
 // }
 
 function renderNewsCard(newsData) {
-  
   let newsCard = document.createElement('a');
   newsCard.className = 'news-card';
   newsCard.setAttribute('href', newsData.url);
@@ -357,7 +350,7 @@ function convertEpochTimeToBST(epochValue) {
 
 function renderAllNewsCard() {
   newsContainer.innerHTML = '';
-  let tenNews = state.newsData.slice(0, 10)
+  let tenNews = state.newsData.slice(0, 10);
   for (const news of tenNews) {
     renderNewsCard(news);
   }
@@ -389,7 +382,6 @@ const renderStock = (stock) => {
       };
 
       setState({ stockData: usefulData });
-      // renderSearch();
     });
 
     getSearchRelatedNews(stock.symbol).then(function (newsData) {
@@ -455,8 +447,6 @@ const render = () => {
   renderAllNewsCard();
   renderWatchList();
 };
-
-
 
 function getChatData(symbol, interval, range) {
   return fetch(
@@ -573,11 +563,15 @@ function convertBarDataReturnLabel(minBarData, barRawData) {
 }
 
 function displayChart() {
-  if (state.stockData === null) return
-  if (state.previousStockData && state.previousStockData.symbol === state.stockData.symbol) return
-  state.previousStockData = state.stockData
+  if (state.stockData === null) return;
+  if (
+    state.previousStockData &&
+    state.previousStockData.symbol === state.stockData.symbol
+  )
+    return;
+  state.previousStockData = state.stockData;
 
-  let chartBtnBar = document.querySelector(".chart-button-bar")
+  let chartBtnBar = document.querySelector('.chart-button-bar');
   chartBtnBar.style.display = 'block';
   processChartData(state.stockData.symbol);
 }
