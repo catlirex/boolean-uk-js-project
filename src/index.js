@@ -371,7 +371,6 @@ const renderStock = (stock) => {
   let stockLiEl = document.createElement('li');
   stockLiEl.className = 'stock-list-item';
   stockLiEl.addEventListener('click', function () {
-    // setState({ selectedStock: stock.id });
     state.selectedStock = stock.id;
     getStockSummary(stock.symbol).then(function (data) {
       let usefulData = {
